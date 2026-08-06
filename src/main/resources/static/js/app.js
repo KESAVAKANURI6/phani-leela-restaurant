@@ -324,50 +324,37 @@ function itemMatchesSearch(item, q) {
   return false;
 }
 
-async function applyAllergenFilter() {
+function applyAllergenFilter() {
   const checked = Array.from(document.querySelectorAll('.allergen-chip input:checked'))
     .map(cb => cb.value);
   document.querySelectorAll('.allergen-chip').forEach(chip => {
-    chip.classList.toggle('checked', chip.querySelector('input').checked);
+    const input = chip.querySelector('input');
+    chip.classList.toggle('checked', input ? input.checked : false);
   });
   activeAllergens = checked;
-
-  if (checked.length === 0) {
-    applyFilters();
-    return;
-  }
-
-  try {
-    const grid = document.getElementById('menuGrid');
-    if (grid) grid.innerHTML = '<div class="loading-spinner"></div>';
-    const safeItems = await Api.getMenuSafe(checked);
-    let result = safeItems;
-    if (vegFilter === 'veg') result = result.filter(i => i.isVeg);
-    if (vegFilter === 'nonveg') result = result.filter(i => !i.isVeg);
-    
-    const q = searchQuery.trim();
-    if (!q && activeCategory !== 'all') {
-      result = result.filter(i => i.categoryId === activeCategory);
-    }
-    if (q) {
-      result = result.filter(i => itemMatchesSearch(i, q));
-    }
-    renderMenu(result);
-  } catch (e) {
-    applyFilters();
-  }
+  applyFilters();
 }
 
 function applyFilters() {
-  if (activeAllergens.length > 0) { applyAllergenFilter(); return; }
   let result = [...allMenuItems];
   const q = searchQuery.trim();
 
+  // Allergen exclusion filter
+  if (activeAllergens.length > 0) {
+    result = result.filter(item => {
+      if (!item.allergens || item.allergens.length === 0) return true;
+      return !item.allergens.some(a => 
+        a && activeAllergens.some(excluded => excluded.toLowerCase() === a.toLowerCase())
+      );
+    });
+  }
+
+  // Veg / Non-Veg filter
   if (vegFilter === 'veg') result = result.filter(i => i.isVeg);
   if (vegFilter === 'nonveg') result = result.filter(i => !i.isVeg);
 
+  // Search or Category filter
   if (q) {
-    // Global search across all categories when typing
     result = result.filter(i => itemMatchesSearch(i, q));
   } else if (activeCategory !== 'all') {
     result = result.filter(i => i.categoryId === activeCategory);

@@ -122,7 +122,7 @@ public class MenuService {
                 "OPTIONAL MATCH (m)-[:HAS_INGREDIENT]->(i:Ingredient)-[:IS_ALLERGEN]->(a:Allergen) " +
                 "RETURN m.id as id, m.name as name, m.description as description, " +
                 "m.price as price, m.imageEmoji as imageEmoji, m.isVeg as isVeg, " +
-                "c.name as categoryName, collect(DISTINCT a.name) as allergens ORDER BY m.name",
+                "c.id as categoryId, c.name as categoryName, collect(DISTINCT a.name) as allergens ORDER BY m.name",
                 parameters("categoryId", categoryId)
             );
             return result.list(r -> {
@@ -133,6 +133,7 @@ public class MenuService {
                 item.put("price", r.get("price").asInt());
                 item.put("imageEmoji", r.get("imageEmoji").asString("\uD83C\uDF7D"));
                 item.put("isVeg", r.get("isVeg").asBoolean(true));
+                item.put("categoryId", r.get("categoryId").asString());
                 item.put("categoryName", r.get("categoryName").asString());
                 item.put("allergens", r.get("allergens").asList());
                 return item;
@@ -158,7 +159,7 @@ public class MenuService {
                 "OPTIONAL MATCH (m)-[:HAS_INGREDIENT]->(i2:Ingredient)-[:IS_ALLERGEN]->(a2:Allergen) " +
                 "RETURN m.id as id, m.name as name, m.description as description, " +
                 "m.price as price, m.imageEmoji as imageEmoji, m.isVeg as isVeg, " +
-                "c.name as categoryName, collect(DISTINCT a2.name) as allergens " +
+                "c.id as categoryId, c.name as categoryName, collect(DISTINCT a2.name) as allergens " +
                 "ORDER BY c.sortOrder, m.name",
                 parameters("allergens", lowerAllergens)
             );
@@ -170,6 +171,7 @@ public class MenuService {
                 item.put("price", r.get("price").asInt());
                 item.put("imageEmoji", r.get("imageEmoji").asString("\uD83C\uDF7D"));
                 item.put("isVeg", r.get("isVeg").asBoolean(true));
+                item.put("categoryId", r.get("categoryId").asString());
                 item.put("categoryName", r.get("categoryName").asString());
                 item.put("allergens", r.get("allergens").asList());
                 return item;
