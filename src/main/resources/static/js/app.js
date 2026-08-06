@@ -334,34 +334,67 @@ function tokenMatchesWord(token, targetWords, rawTargetText) {
   return false;
 }
 
-function itemMatchesSearch(item, q) {
-  if (!q) return true;
+function getSearchScore(item, q) {
+  if (!q) return 1;
   const rawQuery = q.trim().toLowerCase();
-  if (!rawQuery) return true;
+  if (!rawQuery) return 1;
 
-  const normalizedQuery = normalizeSearchTerm(rawQuery);
+  const normQuery = normalizeSearchTerm(rawQuery);
+  const tokens = normQuery.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return 1;
+
+  const dishName = (item.name || '').toLowerCase();
+  const normDishName = normalizeSearchTerm(dishName);
+  const normCategory = normalizeSearchTerm((item.categoryName || '').toLowerCase());
+  const normDesc = normalizeSearchTerm((item.description || '').toLowerCase());
 
   let ingredientsText = '';
   if (item.ingredients && Array.isArray(item.ingredients)) {
-    ingredientsText = item.ingredients
-      .map(ing => (typeof ing === 'object' ? (ing.name || '') : String(ing)))
-      .join(' ');
+    ingredientsText = normalizeSearchTerm(
+      item.ingredients
+        .map(ing => (typeof ing === 'object' ? (ing.name || '') : String(ing)))
+        .join(' ')
+    );
   }
 
-  const targetText = (
-    (item.name || '') + ' ' +
-    (item.description || '') + ' ' +
-    (item.categoryName || '') + ' ' +
-    (item.allergens ? item.allergens.join(' ') : '') + ' ' +
-    ingredientsText
-  ).toLowerCase();
+  // 1. Exact or Substring match directly in Dish Name
+  if (normDishName.includes(normQuery) || dishName.includes(rawQuery)) {
+    return 100;
+  }
 
-  const normTarget = normalizeSearchTerm(targetText);
+  // 2. All search tokens match inside Dish Name
+  const dishNameWords = normDishName.split(/\s+/).filter(Boolean);
+  const allTokensInName = tokens.every(token => 
+    tokenMatchesWord(token, dishNameWords, normDishName)
+  );
+  if (allTokensInName) {
+    return 80;
+  }
 
-  const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
-  const targetWords = normTarget.split(/\s+/).filter(Boolean);
+  // 3. Match in Category Name
+  const catWords = normCategory.split(/\s+/).filter(Boolean);
+  const allTokensInCat = tokens.every(token => 
+    tokenMatchesWord(token, catWords, normCategory)
+  );
+  if (allTokensInCat) {
+    return 60;
+  }
 
-  return tokens.every(token => tokenMatchesWord(token, targetWords, normTarget));
+  // 4. Match in Description / Ingredients
+  const fullText = normDishName + ' ' + normCategory + ' ' + normDesc + ' ' + ingredientsText;
+  const fullWords = fullText.split(/\s+/).filter(Boolean);
+  const allTokensInFull = tokens.every(token => 
+    tokenMatchesWord(token, fullWords, fullText)
+  );
+  if (allTokensInFull) {
+    return 40;
+  }
+
+  return 0;
+}
+
+function itemMatchesSearch(item, q) {
+  return getSearchScore(item, q) > 0;
 }
 
 function applyAllergenFilter() {
@@ -395,7 +428,11 @@ function applyFilters() {
 
   // Search or Category filter
   if (q) {
-    result = result.filter(i => itemMatchesSearch(i, q));
+    if (activeCategory !== 'all') {
+      result = result.filter(i => i.categoryId === activeCategory);
+    }
+    result = result.filter(i => getSearchScore(i, q) > 0);
+    result.sort((a, b) => getSearchScore(b, q) - getSearchScore(a, q));
   } else if (activeCategory !== 'all') {
     result = result.filter(i => i.categoryId === activeCategory);
   }
