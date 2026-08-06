@@ -268,55 +268,95 @@ function setVegFilter(filter) {
   applyFilters();
 }
 
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
 function normalizeSearchTerm(str) {
   if (!str) return '';
   let s = str.toLowerCase().trim();
   s = s.replace(/briyani|biriyani|birani|bryani/g, 'biryani');
   s = s.replace(/panner|paner|paneir/g, 'paneer');
-  s = s.replace(/chiken|chikn|chickn/g, 'chicken');
+  s = s.replace(/chiken|chikn|chickn|chikenn/g, 'chicken');
   s = s.replace(/samose|samoosa|smosa/g, 'samosa');
   s = s.replace(/naan|nan/g, 'naan');
   s = s.replace(/lasi|lassee/g, 'lassi');
   s = s.replace(/muton|mutten/g, 'mutton');
+  s = s.replace(/kabab|kebab/g, 'kebab');
+  s = s.replace(/paratha|parata|paratta/g, 'paratha');
+  s = s.replace(/tikka|tika/g, 'tikka');
+  s = s.replace(/gulab|gullab/g, 'gulab');
+  s = s.replace(/kulfi|khulfi/g, 'kulfi');
   return s;
+}
+
+function tokenMatchesWord(token, targetWords, rawTargetText) {
+  if (!token) return true;
+  if (rawTargetText.includes(token)) return true;
+
+  const maxDist = token.length <= 4 ? 1 : 2;
+
+  for (let word of targetWords) {
+    const cleanWord = word.replace(/[^a-z0-9]/g, '');
+    if (!cleanWord) continue;
+
+    if (token.length >= 3 && cleanWord.startsWith(token)) return true;
+
+    if (token.length >= 3 && Math.abs(cleanWord.length - token.length) <= maxDist) {
+      if (levenshtein(token, cleanWord) <= maxDist) return true;
+    }
+  }
+  return false;
 }
 
 function itemMatchesSearch(item, q) {
   if (!q) return true;
-  const rawTerm = q.trim().toLowerCase();
-  const normTerm = normalizeSearchTerm(q);
-  if (!rawTerm) return true;
+  const rawQuery = q.trim().toLowerCase();
+  if (!rawQuery) return true;
+
+  const normalizedQuery = normalizeSearchTerm(rawQuery);
+
+  let ingredientsText = '';
+  if (item.ingredients && Array.isArray(item.ingredients)) {
+    ingredientsText = item.ingredients
+      .map(ing => (typeof ing === 'object' ? (ing.name || '') : String(ing)))
+      .join(' ');
+  }
 
   const targetText = (
     (item.name || '') + ' ' +
     (item.description || '') + ' ' +
     (item.categoryName || '') + ' ' +
-    (item.allergens ? item.allergens.join(' ') : '')
+    (item.allergens ? item.allergens.join(' ') : '') + ' ' +
+    ingredientsText
   ).toLowerCase();
 
   const normTarget = normalizeSearchTerm(targetText);
 
-  // Match raw term or normalized term
-  if (targetText.includes(rawTerm) || normTarget.includes(normTerm)) return true;
+  const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  const targetWords = normTarget.split(/\s+/).filter(Boolean);
 
-  // Handle transposed letters (e.g. briyani -> biryani)
-  if (rawTerm.length >= 3) {
-    const rawClean = rawTerm.replace(/[^a-z0-9]/g, '');
-    const targetClean = targetText.replace(/[^a-z0-9]/g, '');
-    if (targetClean.includes(rawClean)) return true;
-
-    const words = targetText.split(/\s+/);
-    for (let w of words) {
-      const wClean = w.replace(/[^a-z0-9]/g, '');
-      if (wClean.length >= 4 && Math.abs(wClean.length - rawClean.length) <= 2) {
-        if (wClean[0] === rawClean[0] && wClean[wClean.length - 1] === rawClean[rawClean.length - 1]) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
+  return tokens.every(token => tokenMatchesWord(token, targetWords, normTarget));
 }
 
 function applyAllergenFilter() {
