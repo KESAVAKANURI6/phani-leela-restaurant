@@ -8,8 +8,6 @@ target/
 
 # Maven
 .mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
 # Environment - NEVER commit these
 .env
