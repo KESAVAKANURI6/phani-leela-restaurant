@@ -140,8 +140,19 @@
     }
     .btn-delete:hover { background: rgba(239,68,68,0.25); }
 
+    .dishes-management-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 24px;
+      align-items: start;
+    }
+
     /* ── MOBILE RESPONSIVE DESIGN ── */
     @media (max-width: 768px) {
+      .dishes-management-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
       body {
         padding-top: 130px !important;
         padding-left: 12px !important;
@@ -344,7 +355,7 @@
 
     <!-- DISH MANAGEMENT TAB -->
     <div id="dishesTabSection" style="display:none;">
-      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;align-items:start;">
+      <div class="dishes-management-grid">
 
         <!-- Add Dish Form Card -->
         <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;">
