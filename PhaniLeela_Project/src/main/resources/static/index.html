@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phani Leela — Authentic Indian Restaurant</title>
+  <meta name="description" content="Phani Leela serves authentic Indian cuisine. Explore our menu, filter by allergens, and order online. Powered by a graph database." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css?v=2" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-icon">🪔</span>
+        <div>
+          <div class="brand-name">Phani Leela</div>
+          <div class="brand-sub">Authentic Indian Cuisine</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active" onclick="showSection('home',this)">🏠 Home</a>
+        <a href="#menu" class="nav-link" onclick="showSection('menu',this)">🍽️ Menu</a>
+        <a href="#graph" class="nav-link" onclick="showSection('graph',this)">🌐 Graph</a>
+      </div>
+      <button class="cart-btn" id="cartBtn" onclick="toggleCart()">
+        🛒 Cart <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Nav Bar -->
+  <div class="mobile-bottom-nav">
+    <button class="mobile-nav-item active" onclick="showSection('home', this); setMobileNavActive(this)">
+      <span>🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showSection('menu', this); setMobileNavActive(this)">
+      <span>🍽️</span>
+      <span>Menu</span>
+    </button>
+    <button class="mobile-nav-item" onclick="showSection('graph', this); setMobileNavActive(this)">
+      <span>🌐</span>
+      <span>Graph</span>
+    </button>
+    <button class="mobile-nav-item" onclick="toggleCart()">
+      <span>🛒</span>
+      <span>Cart (<span id="cartCountMobile">0</span>)</span>
+    </button>
+  </div>
+
+  <!-- ── HOME SECTION ── -->
+  <section id="home" class="section active">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-content">
+        <div class="hero-badge">🪔 Est. Since Generations</div>
+        <h1 class="hero-title">Phani Leela</h1>
+        <p class="hero-subtitle">Authentic Indian Cuisine</p>
+        <p class="hero-desc">Experience the rich flavours of India — from aromatic biryanis to creamy gravies, fresh breads to indulgent desserts. Every dish crafted with love and tradition.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="navigateToSection('menu')">Explore Menu 🍛</button>
+          <button class="btn-outline" onclick="navigateToSection('graph')">View Food Graph 🌐</button>
+        </div>
+        <div class="hero-features">
+          <div class="hero-feature">🌿 Veg & Non-Veg</div>
+          <div class="hero-feature">⚠️ Allergen Filter</div>
+          <div class="hero-feature">🤝 Dish Pairings</div>
+        </div>
+      </div>
+      <div class="hero-slider-container">
+        <div class="hero-slider">
+          <div class="hero-slide active">
+            <img src="/images/chicken-biryani.png" alt="Hyderabadi Chicken Biryani" class="slider-img" />
+            <div class="slider-caption">🔥 Hyderabadi Chicken Biryani</div>
+          </div>
+          <div class="hero-slide">
+            <img src="/images/paneer-biryani.png" alt="Paneer Dum Biryani" class="slider-img" />
+            <div class="slider-caption">🟢 Special Paneer Biryani</div>
+          </div>
+          <div class="hero-slide">
+            <img src="/images/ice-cream.png" alt="Royal Kulfi Ice Cream" class="slider-img" />
+            <div class="slider-caption">🍨 Royal Saffron Ice Cream</div>
+          </div>
+        </div>
+        <button class="slider-btn prev-btn" onclick="prevSlide()">❮</button>
+        <button class="slider-btn next-btn" onclick="nextSlide()">❯</button>
+        <div class="slider-dots">
+          <span class="dot active" onclick="setSlide(0)"></span>
+          <span class="dot" onclick="setSlide(1)"></span>
+          <span class="dot" onclick="setSlide(2)"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-section">
+      <div class="container">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-icon">🍽️</div>
+            <div class="stat-number" id="stat-menu">—</div>
+            <div class="stat-label">Menu Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌿</div>
+            <div class="stat-number" id="stat-ingredients">—</div>
+            <div class="stat-label">Ingredients</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-number" id="stat-orders">—</div>
+            <div class="stat-label">Orders Served</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔗</div>
+            <div class="stat-number" id="stat-rels">—</div>
+            <div class="stat-label">Graph Relations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Dishes -->
+    <div class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Today's Favourites</h2>
+          <p class="section-sub">Most loved dishes by our guests</p>
+        </div>
+        <div class="popular-grid" id="popularGrid"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MENU SECTION ── -->
+  <section id="menu" class="section">
+    <div class="container">
+      <div class="menu-header">
+        <h2 class="section-title">Our Menu</h2>
+        <p class="section-sub">30 authentic Indian dishes, crafted with tradition</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <!-- Veg Toggle -->
+        <div class="filter-group">
+          <button class="filter-pill active" id="filterAll" onclick="setVegFilter('all')">All Dishes</button>
+          <button class="filter-pill" id="filterVeg" onclick="setVegFilter('veg')">🟢 Veg Only</button>
+          <button class="filter-pill" id="filterNonVeg" onclick="setVegFilter('nonveg')">🔴 Non-Veg</button>
+        </div>
+        <!-- Allergen Filter -->
+        <div class="allergen-filter">
+          <span class="filter-label">⚠️ Exclude Allergens:</span>
+          <label class="allergen-chip"><input type="checkbox" value="Dairy" onchange="applyAllergenFilter()"> Dairy</label>
+          <label class="allergen-chip"><input type="checkbox" value="Gluten" onchange="applyAllergenFilter()"> Gluten</label>
+          <label class="allergen-chip"><input type="checkbox" value="Nuts" onchange="applyAllergenFilter()"> Nuts</label>
+          <label class="allergen-chip"><input type="checkbox" value="Egg" onchange="applyAllergenFilter()"> Egg</label>
+          <label class="allergen-chip"><input type="checkbox" value="Fish" onchange="applyAllergenFilter()"> Fish</label>
+        </div>
+        <!-- Search -->
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="🔍 Search dishes..." oninput="searchDishes()" />
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="category-tabs" id="categoryTabs"></div>
+
+      <!-- Menu Grid -->
+      <div class="menu-grid" id="menuGrid"><div class="loading-spinner"></div></div>
+    </div>
+  </section>
+
+
+  <!-- ── GRAPH SECTION ── -->
+  <section id="graph" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">🔍 Dish Connection & Recipe Inspector</h2>
+        <p class="section-sub">Select any dish to see its full ingredients, allergen warnings, and dish connections</p>
+      </div>
+
+      <!-- Dish Selector Dropdown -->
+      <div class="dish-selector-bar">
+        <label for="dishGraphSelect" style="font-weight:700;color:var(--gold);font-size:0.95rem;">🍽️ Select Dish to Inspect:</label>
+        <select id="dishGraphSelect" class="form-input" style="max-width:320px;font-weight:700;" onchange="onDishDropdownSelect(this.value)">
+          <option value="">-- Choose a Dish (e.g. Butter Chicken) --</option>
+        </select>
+        <button class="btn-sm" onclick="clearDishInspection()">Reset Inspection 🔄</button>
+      </div>
+
+      <!-- Dish Connection Story Card (Visible when dish is selected/clicked) -->
+      <div class="dish-story-card hidden" id="dishStoryCard">
+        <div class="story-top">
+          <img id="storyImg" src="" alt="Dish Photo" class="story-photo" />
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+              <h3 id="storyTitle" class="story-title">Dish Name</h3>
+              <span id="storyPrice" class="story-price">₹0</span>
+            </div>
+            <div id="storyCat" class="story-subtitle">Category</div>
+            <div id="storyDesc" class="story-desc">Description</div>
+          </div>
+        </div>
+
+        <div class="story-grid">
+          <div class="story-box">
+            <div class="story-box-title">🌿 Ingredients Inside</div>
+            <div id="storyIngredients" class="story-box-content">Loading...</div>
+          </div>
+          <div class="story-box">
+            <div class="story-box-title">⚠️ Allergen Warnings</div>
+            <div id="storyAllergens" class="story-box-content">Loading...</div>
+          </div>
+          <div class="story-box">
+            <div class="story-box-title">🤝 Pairs Best With</div>
+            <div id="storyPairs" class="story-box-content">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph Canvas Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;flex-wrap:wrap;gap:10px;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--text)">🌐 Interactive Food Graph Map</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-sm" onclick="graphFitView()">⊡ Fit All</button>
+          <button class="btn-sm" onclick="graphReset()">🔄 Reset View</button>
+        </div>
+      </div>
+
+      <!-- Colour Legend -->
+      <div class="graph-legend-box" style="margin-bottom:14px;">
+        <div class="graph-legend">
+          <span class="legend-item">
+            <span class="legend-dot" style="background:#e85d04;border-radius:50%"></span>
+            <span><strong>Dish</strong> (e.g. Butter Chicken)</span>
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot" style="background:#22c55e;border-radius:4px"></span>
+            <span><strong>Ingredient</strong> (e.g. Rice, Spices)</span>
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot" style="background:#6366f1;transform:rotate(45deg);border-radius:2px"></span>
+            <span><strong>Category</strong> (e.g. Starters, Biryani)</span>
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot" style="background:#ef4444;border-radius:50%"></span>
+            <span><strong>Allergen</strong> (e.g. Dairy, Gluten)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Graph Canvas -->
+      <div id="graphCanvas"></div>
+
+      <!-- Tooltip -->
+      <div id="graphTooltip" class="graph-tooltip hidden"></div>
+    </div>
+  </section>
+
+  <!-- ── CART SIDEBAR ── -->
+  <div class="cart-overlay hidden" id="cartOverlay" onclick="toggleCart()"></div>
+  <div class="cart-sidebar hidden" id="cartSidebar">
+    <div class="cart-header">
+      <h3>🛒 Your Cart</h3>
+      <button onclick="toggleCart()" class="close-btn">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"><p class="cart-empty">Your cart is empty.<br>Add some dishes!</p></div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-amount" id="cartTotal">₹0</span>
+      </div>
+      <div class="order-form">
+        <input type="text" id="customerName" placeholder="Your name" class="form-input" />
+
+        <!-- Token Preview -->
+        <div class="token-preview" id="tokenPreview">
+          <div class="token-preview-label">🎫 Your Token Number</div>
+          <div class="token-preview-number" id="tokenPreviewNumber">—</div>
+          <div class="token-preview-hint">This number will be called when your order is ready</div>
+        </div>
+
+        <!-- Payment Method Selector -->
+        <div class="payment-method-section">
+          <div class="payment-title">💳 Select Payment Method</div>
+          <div class="payment-methods-grid">
+            <button class="pay-method-btn active" id="payMethodUpi" onclick="selectPaymentMethod('UPI', this)">
+              <span>📱</span> UPI / QR
+            </button>
+            <button class="pay-method-btn" id="payMethodCard" onclick="selectPaymentMethod('CARD', this)">
+              <span>💳</span> Card
+            </button>
+            <button class="pay-method-btn" id="payMethodCash" onclick="selectPaymentMethod('CASH', this)">
+              <span>💵</span> Cash
+            </button>
+          </div>
+
+          <!-- UPI Details Box -->
+          <div class="pay-details-box" id="payDetailsUpi">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="qr-placeholder">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=upi://pay?pa=phanileela@upi%26pn=Phani%20Leela%20Restaurant" alt="UPI QR" style="width:72px;height:72px;border-radius:8px;" />
+              </div>
+              <div style="flex:1">
+                <div style="font-size:0.82rem;font-weight:700;color:var(--gold);">Scan & Pay via GPay / PhonePe</div>
+                <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">UPI ID: <strong>phanileela@upi</strong></div>
+                <div style="font-size:0.72rem;color:var(--success);margin-top:4px;">✓ Instant Payment Confirmation</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Details Box (Hidden by default) -->
+          <div class="pay-details-box hidden" id="payDetailsCard">
+            <input type="text" placeholder="Card Number (4000 1234 5678 9010)" class="form-input" style="margin-bottom:8px;font-size:0.85rem;" maxlength="19" />
+            <div style="display:flex;gap:8px;">
+              <input type="text" placeholder="MM/YY" class="form-input" style="font-size:0.85rem;" maxlength="5" />
+              <input type="password" placeholder="CVC" class="form-input" style="font-size:0.85rem;" maxlength="3" />
+            </div>
+          </div>
+
+          <!-- Cash Details Box (Hidden by default) -->
+          <div class="pay-details-box hidden" id="payDetailsCash">
+            <div style="font-size:0.82rem;color:var(--gold);font-weight:700;">💵 Pay at Counter</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">Pay cash to the cashier when your token number is called.</div>
+          </div>
+        </div>
+
+        <textarea id="specialNote" placeholder="Special instructions (optional)" class="form-input" rows="2"></textarea>
+        <button class="btn-primary full-width" onclick="placeOrder()">Pay & Place Order 💳</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DISH MODAL ── -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeDishModal()"></div>
+  <div class="dish-modal hidden" id="dishModal">
+    <button class="modal-close" onclick="closeDishModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="toast hidden" id="toast"></div>
+
+  <!-- ── TOKEN CONFIRMATION MODAL ── -->
+  <div class="modal-overlay hidden" id="tokenOverlay" onclick="closeTokenModal()"></div>
+  <div class="token-modal hidden" id="tokenModal">
+    <div class="token-modal-inner">
+      <div class="token-modal-top">
+        <div class="token-modal-icon">🎫</div>
+        <div class="token-modal-title">Order & Payment Successful!</div>
+        <div class="token-modal-sub">Please remember your token number</div>
+      </div>
+      <div class="token-modal-number" id="tokenModalNumber">—</div>
+      <div class="token-modal-name" id="tokenModalName"></div>
+
+      <!-- Payment Status Badge in Token Modal -->
+      <div id="tokenModalPaymentBadge" style="margin-bottom:14px;"></div>
+
+      <div class="token-modal-info">
+        <div class="token-info-row">📢 Listen for your token to be called</div>
+        <div class="token-info-row">🍳 Your food is now being <strong>prepared</strong></div>
+        <div class="token-info-row">💳 Payment Status: <span id="tokenPaymentStatusTxt" style="font-weight:700;color:var(--success)">PAID</span></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn-outline" style="flex:1;padding:10px;" onclick="window.print()">🖨️ Print Receipt</button>
+        <button class="modal-add-btn" style="flex:1.2;margin:0;" onclick="closeTokenModal()">Got it! 👍</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OWNER PIN MODAL ── -->
+  <div class="modal-overlay hidden" id="pinOverlay" onclick="closePinModal()"></div>
+  <div class="pin-modal hidden" id="pinModal">
+    <div class="pin-modal-inner">
+      <div class="pin-modal-icon">🔐</div>
+      <div class="pin-modal-title">Owner Access Only</div>
+      <div class="pin-modal-sub">This section is restricted to restaurant staff.<br>Enter your PIN to continue.</div>
+      <div class="pin-dots" id="pinDots">
+        <span class="pin-dot" id="dot0"></span>
+        <span class="pin-dot" id="dot1"></span>
+        <span class="pin-dot" id="dot2"></span>
+        <span class="pin-dot" id="dot3"></span>
+      </div>
+      <div id="pinError" class="pin-error hidden">❌ Wrong PIN. Try again.</div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinPress('1')">1</button>
+        <button class="pin-key" onclick="pinPress('2')">2</button>
+        <button class="pin-key" onclick="pinPress('3')">3</button>
+        <button class="pin-key" onclick="pinPress('4')">4</button>
+        <button class="pin-key" onclick="pinPress('5')">5</button>
+        <button class="pin-key" onclick="pinPress('6')">6</button>
+        <button class="pin-key" onclick="pinPress('7')">7</button>
+        <button class="pin-key" onclick="pinPress('8')">8</button>
+        <button class="pin-key" onclick="pinPress('9')">9</button>
+        <button class="pin-key pin-key-clear" onclick="pinClear()">⌫</button>
+        <button class="pin-key" onclick="pinPress('0')">0</button>
+        <button class="pin-key pin-key-cancel" onclick="closePinModal()">✕</button>
+      </div>
+      <div class="pin-hint">Hint: Ask your restaurant manager</div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  <script src="/js/api.js?v=3"></script>
+  <script src="/js/graph.js?v=3"></script>
+  <script src="/js/app.js?v=3"></script>
+</body>
+</html>

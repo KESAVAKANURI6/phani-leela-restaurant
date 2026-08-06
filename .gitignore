@@ -1,0 +1,33 @@
+# Compiled class files
+target/
+*.class
+
+# Package files
+*.jar
+*.war
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Environment - NEVER commit these
+.env
+*.env
+application-local.properties
+
+# IDE
+.idea/
+*.iml
+.eclipse
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
