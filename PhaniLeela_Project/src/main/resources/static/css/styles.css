@@ -338,7 +338,7 @@ body {
   font-size: 0.8rem; color: var(--muted); transition: all 0.2s; user-select: none;
 }
 .allergen-chip:hover { border-color: #f59e0b; color: #f59e0b; }
-.allergen-chip input { display: none; }
+.allergen-chip input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
 .allergen-chip.checked { background: rgba(245,158,11,0.12); border-color: #f59e0b; color: #f59e0b; }
 .search-box input {
   background: rgba(255,255,255,0.04); border: 1px solid var(--border);

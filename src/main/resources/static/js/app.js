@@ -405,12 +405,27 @@ function itemMatchesSearch(item, q) {
   return getSearchScore(item, q) > 0;
 }
 
+function toggleAllergenChip(chipEl, event) {
+  if (event && event.target && event.target.tagName === 'INPUT') return;
+  const input = chipEl.querySelector('input');
+  if (input) {
+    input.checked = !input.checked;
+  } else {
+    chipEl.classList.toggle('checked');
+  }
+  applyAllergenFilter();
+}
+
 function applyAllergenFilter() {
-  const checked = Array.from(document.querySelectorAll('.allergen-chip input:checked'))
-    .map(cb => cb.value);
+  const checked = [];
   document.querySelectorAll('.allergen-chip').forEach(chip => {
     const input = chip.querySelector('input');
-    chip.classList.toggle('checked', input ? input.checked : false);
+    const isChecked = input ? input.checked : chip.classList.contains('checked');
+    chip.classList.toggle('checked', isChecked);
+    if (isChecked) {
+      const val = input ? input.value : (chip.getAttribute('data-value') || chip.textContent.trim());
+      if (val) checked.push(val);
+    }
   });
   activeAllergens = checked;
   applyFilters();

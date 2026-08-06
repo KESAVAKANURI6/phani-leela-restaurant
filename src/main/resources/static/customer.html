@@ -160,11 +160,11 @@
         <!-- Allergen Filter -->
         <div class="allergen-filter">
           <span class="filter-label">⚠️ Exclude Allergens:</span>
-          <label class="allergen-chip"><input type="checkbox" value="Dairy" onchange="applyAllergenFilter()"> Dairy</label>
-          <label class="allergen-chip"><input type="checkbox" value="Gluten" onchange="applyAllergenFilter()"> Gluten</label>
-          <label class="allergen-chip"><input type="checkbox" value="Nuts" onchange="applyAllergenFilter()"> Nuts</label>
-          <label class="allergen-chip"><input type="checkbox" value="Egg" onchange="applyAllergenFilter()"> Egg</label>
-          <label class="allergen-chip"><input type="checkbox" value="Fish" onchange="applyAllergenFilter()"> Fish</label>
+          <label class="allergen-chip" onclick="toggleAllergenChip(this, event)"><input type="checkbox" value="Dairy"> Dairy</label>
+          <label class="allergen-chip" onclick="toggleAllergenChip(this, event)"><input type="checkbox" value="Gluten"> Gluten</label>
+          <label class="allergen-chip" onclick="toggleAllergenChip(this, event)"><input type="checkbox" value="Nuts"> Nuts</label>
+          <label class="allergen-chip" onclick="toggleAllergenChip(this, event)"><input type="checkbox" value="Egg"> Egg</label>
+          <label class="allergen-chip" onclick="toggleAllergenChip(this, event)"><input type="checkbox" value="Fish"> Fish</label>
         </div>
         <!-- Search -->
         <div class="search-box">
