@@ -312,18 +312,24 @@ function normalizeSearchTerm(str) {
   s = s.replace(/tikka|tika/g, 'tikka');
   s = s.replace(/gulab|gullab/g, 'gulab');
   s = s.replace(/kulfi|khulfi/g, 'kulfi');
+  s = s.replace(/alu|alloo/g, 'aloo');
   return s;
 }
 
-function tokenMatchesWord(token, targetWords, rawTargetText) {
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function tokenMatchesWord(token, targetWords) {
   if (!token) return true;
-  if (rawTargetText.includes(token)) return true;
 
   const maxDist = token.length <= 4 ? 1 : 2;
 
   for (let word of targetWords) {
     const cleanWord = word.replace(/[^a-z0-9]/g, '');
     if (!cleanWord) continue;
+
+    if (cleanWord === token) return true;
 
     if (token.length >= 3 && cleanWord.startsWith(token)) return true;
 
@@ -357,15 +363,17 @@ function getSearchScore(item, q) {
     );
   }
 
-  // 1. Exact or Substring match directly in Dish Name
-  if (normDishName.includes(normQuery) || dishName.includes(rawQuery)) {
+  // 1. Exact or Word-Boundary match directly in Dish Name
+  const normRegex = new RegExp('\\b' + escapeRegex(normQuery), 'i');
+  const rawRegex = new RegExp('\\b' + escapeRegex(rawQuery), 'i');
+  if (normRegex.test(normDishName) || rawRegex.test(dishName)) {
     return 100;
   }
 
   // 2. All search tokens match inside Dish Name
   const dishNameWords = normDishName.split(/\s+/).filter(Boolean);
   const allTokensInName = tokens.every(token => 
-    tokenMatchesWord(token, dishNameWords, normDishName)
+    tokenMatchesWord(token, dishNameWords)
   );
   if (allTokensInName) {
     return 80;
@@ -374,7 +382,7 @@ function getSearchScore(item, q) {
   // 3. Match in Category Name
   const catWords = normCategory.split(/\s+/).filter(Boolean);
   const allTokensInCat = tokens.every(token => 
-    tokenMatchesWord(token, catWords, normCategory)
+    tokenMatchesWord(token, catWords)
   );
   if (allTokensInCat) {
     return 60;
@@ -384,7 +392,7 @@ function getSearchScore(item, q) {
   const fullText = normDishName + ' ' + normCategory + ' ' + normDesc + ' ' + ingredientsText;
   const fullWords = fullText.split(/\s+/).filter(Boolean);
   const allTokensInFull = tokens.every(token => 
-    tokenMatchesWord(token, fullWords, fullText)
+    tokenMatchesWord(token, fullWords)
   );
   if (allTokensInFull) {
     return 40;

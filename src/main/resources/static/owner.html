@@ -738,9 +738,11 @@
 
       let filtered = [...allDishesData];
       if (query) {
+        const safeQ = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const qRegex = new RegExp('\\b' + safeQ, 'i');
         filtered = filtered.filter(d =>
-          (d.name || '').toLowerCase().includes(query) ||
-          (d.categoryName || '').toLowerCase().includes(query)
+          qRegex.test(d.name || '') ||
+          qRegex.test(d.categoryName || '')
         );
       }
 

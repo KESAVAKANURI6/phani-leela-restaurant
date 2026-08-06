@@ -351,9 +351,11 @@ function graphFilterByDish(query) {
     return;
   }
 
-  // Find nodes whose label contains the search query
+  // Find nodes whose label matches the search query (word boundary)
+  const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const qRegex = new RegExp('\\b' + safeQ, 'i');
   const matchedNodes = cyInstance.nodes().filter(node =>
-    node.data('label') && node.data('label').toLowerCase().includes(q)
+    node.data('label') && qRegex.test(node.data('label'))
   );
 
   if (matchedNodes.length === 0) {
