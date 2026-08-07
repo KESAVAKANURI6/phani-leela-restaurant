@@ -815,15 +815,17 @@
       const toast = document.getElementById('toast');
       if (!toast) return;
       toast.textContent = msg;
-      toast.style.borderColor = isErr ? 'var(--nonveg)' : 'var(--veg)';
-      toast.style.color = isErr ? 'var(--nonveg)' : 'var(--text)';
+      toast.className = `toast ${isErr ? 'toast-error' : 'toast-success'}`;
+      toast.style.borderColor = '';
+      toast.style.color = '';
+      void toast.offsetWidth;
       toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('show'), 10);
+      toast.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.classList.add('hidden'), 300);
-      }, 3000);
+      }, 3500);
     }
   </script>
 </body>

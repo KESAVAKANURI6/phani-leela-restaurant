@@ -896,14 +896,43 @@ function closeTokenModal() {
   }, 250);
 }
 
+function clearNameError() {
+  const nameInput = document.getElementById('customerName');
+  const nameError = document.getElementById('nameError');
+  const cartErrorBanner = document.getElementById('cartErrorBanner');
+  if (nameInput) nameInput.classList.remove('input-error', 'shake-input');
+  if (nameError) nameError.classList.add('hidden');
+  if (cartErrorBanner) cartErrorBanner.classList.add('hidden');
+}
+
 async function placeOrder() {
-  const name = document.getElementById('customerName').value.trim();
-  const note = document.getElementById('specialNote').value.trim();
+  const nameInput = document.getElementById('customerName');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const note = document.getElementById('specialNote') ? document.getElementById('specialNote').value.trim() : '';
+  const nameError = document.getElementById('nameError');
+  const cartErrorBanner = document.getElementById('cartErrorBanner');
 
   if (!name) {
-    showToast('Please enter your name to get a token', true);
+    if (cartErrorBanner) {
+      cartErrorBanner.textContent = '⚠️ Please enter your name to get a token and place order';
+      cartErrorBanner.classList.remove('hidden');
+    }
+    if (nameError) {
+      nameError.classList.remove('hidden');
+    }
+    if (nameInput) {
+      nameInput.classList.add('input-error', 'shake-input');
+      nameInput.focus();
+      setTimeout(() => nameInput.classList.remove('shake-input'), 400);
+    }
+    showToast('⚠️ Please enter your name to get a token and place order', true);
     return;
   }
+
+  if (nameError) nameError.classList.add('hidden');
+  if (cartErrorBanner) cartErrorBanner.classList.add('hidden');
+  if (nameInput) nameInput.classList.remove('input-error');
+
   if (cart.length === 0) {
     showToast('Your cart is empty — add some dishes first!', true);
     return;
@@ -1080,15 +1109,21 @@ function showToast(message, isError = false) {
   if (!toast) return;
   
   toast.textContent = message;
-  toast.style.borderColor = isError ? 'var(--nonveg)' : 'var(--veg)';
-  toast.style.color = isError ? 'var(--nonveg)' : 'var(--text)';
+  toast.className = `toast ${isError ? 'toast-error' : 'toast-success'}`;
+  
+  // Reset styles inline overrides to let CSS classes control appearance
+  toast.style.borderColor = '';
+  toast.style.color = '';
+
+  // Trigger reflow for smooth animation
+  void toast.offsetWidth;
   
   toast.classList.remove('hidden');
-  setTimeout(() => toast.classList.add('show'), 10);
+  toast.classList.add('show');
   
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.classList.add('hidden'), 300);
-  }, 3000);
+  }, 3500);
 }

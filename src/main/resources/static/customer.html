@@ -7,7 +7,7 @@
   <meta name="description" content="Phani Leela serves authentic Indian cuisine. Explore our menu, filter by allergens, and order online. Powered by a graph database." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/styles.css?v=2" />
+  <link rel="stylesheet" href="/css/styles.css?v=10" />
 </head>
 <body>
   <!-- Navigation -->
@@ -281,7 +281,10 @@
         <span class="total-amount" id="cartTotal">₹0</span>
       </div>
       <div class="order-form">
-        <input type="text" id="customerName" placeholder="Your name" class="form-input" />
+        <div>
+          <input type="text" id="customerName" placeholder="Your name *" class="form-input" oninput="clearNameError()" />
+          <div class="field-error-msg hidden" id="nameError">⚠️ Please enter your name to get a token and place order</div>
+        </div>
 
         <!-- Token Preview -->
         <div class="token-preview" id="tokenPreview">
@@ -336,6 +339,7 @@
         </div>
 
         <textarea id="specialNote" placeholder="Special instructions (optional)" class="form-input" rows="2"></textarea>
+        <div class="cart-error-banner hidden" id="cartErrorBanner">⚠️ Please enter your name to get a token and place order</div>
         <button class="btn-primary full-width" onclick="placeOrder()">Pay & Place Order 💳</button>
       </div>
     </div>
@@ -413,8 +417,8 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-  <script src="/js/api.js?v=3"></script>
-  <script src="/js/graph.js?v=3"></script>
-  <script src="/js/app.js?v=3"></script>
+  <script src="/js/api.js?v=10"></script>
+  <script src="/js/graph.js?v=10"></script>
+  <script src="/js/app.js?v=10"></script>
 </body>
 </html>
