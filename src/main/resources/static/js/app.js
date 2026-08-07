@@ -406,10 +406,11 @@ function itemMatchesSearch(item, q) {
 }
 
 function toggleAllergenChip(chipEl, event) {
-  if (event && event.target && event.target.tagName === 'INPUT') return;
-  const input = chipEl.querySelector('input');
+  const input = chipEl ? chipEl.querySelector('input') : null;
   if (input) {
-    input.checked = !input.checked;
+    // When clicking a <label> containing a checkbox, browser natively toggles input.checked.
+    // Sync the .checked class with input.checked:
+    chipEl.classList.toggle('checked', input.checked);
   } else {
     chipEl.classList.toggle('checked');
   }
